@@ -1,0 +1,83 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../redux-mixin.html">
+<dom-module id="reference-buffer">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+        <label for="fileUpload" id="label">Upload Access String</label>
+        <paper-input id="fileUpload" type="file" name="fileUpload" on-change="fileChange"></paper-input>
+        <iron-list items="[[referenceList]]" as="row">
+            <template>
+                <div>[[row.process]] [[row.reference]]</div>
+            </template>
+        </iron-list>
+    </template>
+
+    <script>
+        /**
+         * @customElement
+         * @polymer
+         */
+        class ReferenceBuffer extends ReduxMixin(Polymer.Element) {
+            static get is() { return 'reference-buffer'; }
+            static get properties() {
+                return {
+                    referenceList:{
+                        type: Array,
+                        statePath: 'ReferenceList',
+                        observer: '_temp'
+                    }
+                };
+            }
+            //EVENT HANDLERS
+            fileChange(){
+                this._handleFileUpload();
+            }
+            _temp(oldVal, newVal){
+                console.log('test');
+            }
+            //HELPERS
+            _handleFileUpload(){
+                if (window.File && window.FileReader && window.FileList && window.Blob){
+                    var file = this.$.fileUpload.$.nativeInput.files[0];
+                    if(file){
+                        //Have file
+                        var reader = new FileReader();
+                        reader.onload = function(data){
+                            //console.log(data.target.result);
+                            this._parseFileText(data.target.result);
+                        }.bind(this);
+                        reader.onerror = function(data){
+                            alert('there was an error reading that file');
+                        }
+                        reader.readAsText(file,'UTF-8');
+                    }
+                }else{
+                    alert('Browser not supported');
+                }
+            }
+            _parseFileText(text){
+                var lines = text.split('\n');
+                var refArray = [];
+                if(lines[lines.length-1] == ""){
+                    //Remove entry from extra newline
+                    lines.pop();
+                }
+                lines.forEach(function(line){
+                    var row = {};
+                    row.process = line.substr(0,line.indexOf(':'));
+                    row.reference = line.substr(line.indexOf(':')+1).trim();
+                    //Add new row to store
+                    this.dispatch({type:'AddReference', payload:{row: row}});
+                }.bind(this));
+            }
+        }
+
+        window.customElements.define(ReferenceBuffer.is, ReferenceBuffer);
+    </script>
+</dom-module>

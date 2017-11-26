@@ -1,0 +1,7 @@
+{
+  "name": "LRU Model",
+  "short_name": "LRU Model",
+  "description": "CIS 452 LRU Modeling",
+  "start_url": "/",
+  "display": "standalone"
+}

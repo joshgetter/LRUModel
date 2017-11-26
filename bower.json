@@ -1,0 +1,15 @@
+{
+  "name": "LRU Model",
+  "description": "CIS 452 LRU Modeling",
+  "main": "index.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^2.0.0",
+    "polymer-redux": "^1.0.4",
+    "paper-input": "^2.0.3",
+    "iron-list": "^2.0.11"
+  },
+  "devDependencies": {
+    "web-component-tester": "Polymer/web-component-tester#^6.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0"
+  }
+}

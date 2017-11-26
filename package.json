@@ -1,0 +1,20 @@
+{
+  "name": "lru-model",
+  "version": "1.0.0",
+  "description": "CIS 452 LRU Model",
+  "main": "index.html",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "LRU"
+  ],
+  "author": "Josh Getter",
+  "license": "ISC",
+  "dependencies": {
+    "redux": "^3.7.2"
+  }
+}
