@@ -2,6 +2,7 @@
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../redux-mixin.html">
+
 <dom-module id="reference-buffer">
     <template>
         <style>
@@ -29,17 +30,13 @@
                 return {
                     referenceList:{
                         type: Array,
-                        statePath: 'ReferenceList',
-                        observer: '_temp'
+                        statePath: REFERENCE_LIST
                     }
                 };
             }
             //EVENT HANDLERS
             fileChange(){
                 this._handleFileUpload();
-            }
-            _temp(oldVal, newVal){
-                console.log('test');
             }
             //HELPERS
             _handleFileUpload(){
@@ -68,12 +65,11 @@
                     //Remove entry from extra newline
                     lines.pop();
                 }
-                lines.forEach(function(line){
-                    var row = {};
-                    row.process = line.substr(0,line.indexOf(':'));
-                    row.reference = line.substr(line.indexOf(':')+1).trim();
-                    //Add new row to store
-                    this.dispatch({type:'AddReference', payload:{row: row}});
+                lines.forEach(function(line,index){
+                    var reference = new ProcessReference(line.substr(0,line.indexOf(':'))
+                        , line.substr(line.indexOf(':')+1).trim());
+                    //Add new reference to store
+                    this.dispatch({type: ADD_REFERENCE, payload:{row: reference}});
                 }.bind(this));
             }
         }

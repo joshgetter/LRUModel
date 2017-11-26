@@ -2,11 +2,15 @@
 <link rel="import" href="../bower_components/polymer-redux/polymer-redux.html">
 <script src="../node_modules/redux/dist/redux.js"></script>
 <script>
-    const initialState = {ReferenceList:[]};
+    const initialState = {REFERENCE_LIST:[], CurrentReference: 0};
     const reducer = (state = initialState, action) => {
         switch(action.type){
-            case 'AddReference':
-                return {...state, ReferenceList: [...state.ReferenceList, action.payload.row]}
+            case ADD_REFERENCE:
+                //Add index
+                action.payload.row.index = state.REFERENCE_LIST[state.REFERENCE_LIST.length-1].index++;
+                return {...state, REFERENCE_LIST: [...state.REFERENCE_LIST, action.payload.row]}
+            case INC_REFERENCE:
+                return {...state, CURRENT_REFERENCE: state.CurrentReference++};
             default: return state;
         }
     };
