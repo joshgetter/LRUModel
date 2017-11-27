@@ -12,9 +12,15 @@
         </style>
         <label for="fileUpload" id="label">Upload Access String</label>
         <paper-input id="fileUpload" type="file" name="fileUpload" on-change="fileChange"></paper-input>
-        <iron-list items="[[referenceList]]" as="row">
+        <iron-list items="[[referenceList]]" as="row" id="ironList">
+            <style>
+                div[selected]{
+                    color:darkred;
+                    background-color: gray;
+                }
+            </style>
             <template>
-                <div>[[row.process]] [[row.reference]]</div>
+                <div selected$="{{_calculateSelected(index,currentReference)}}">[[row.process]] [[row.reference]]</div>
             </template>
         </iron-list>
     </template>
@@ -31,6 +37,10 @@
                     referenceList:{
                         type: Array,
                         statePath: REFERENCE_LIST
+                    },
+                    currentReference:{
+                        type: Number,
+                        statePath: CURRENT_REFERENCE,
                     }
                 };
             }
@@ -65,12 +75,16 @@
                     //Remove entry from extra newline
                     lines.pop();
                 }
-                lines.forEach(function(line,index){
+                lines.forEach(function(line){
                     var reference = new ProcessReference(line.substr(0,line.indexOf(':'))
                         , line.substr(line.indexOf(':')+1).trim());
                     //Add new reference to store
                     this.dispatch({type: ADD_REFERENCE, payload:{row: reference}});
                 }.bind(this));
+            }
+            _calculateSelected(index, currentRef){
+                if(index == currentRef) {return true;}
+                return false;
             }
         }
 

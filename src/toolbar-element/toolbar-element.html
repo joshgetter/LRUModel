@@ -25,7 +25,7 @@
         <app-header reveals>
             <app-toolbar>
                 <div main-title>LRU Model</div>
-                <paper-icon-button icon="arrow-forward"></paper-icon-button>
+                <paper-icon-button icon="arrow-forward" on-click="_handleNextClick"></paper-icon-button>
             </app-toolbar>
         </app-header>
     </template>
@@ -39,8 +39,21 @@
             static get is() { return 'toolbar-element'; }
             static get properties() {
                 return {
-
+                    referenceList:{
+                        type: Array,
+                        statePath: REFERENCE_LIST
+                    },
+                    currentReference:{
+                        type: Number,
+                        statePath: CURRENT_REFERENCE
+                    }
                 };
+            }
+            _handleNextClick(){
+                if(this.currentReference + 1 < this.referenceList.length){
+                    //can go to next reference string
+                    this.dispatch({type:INC_REFERENCE, payload:{}});
+                }
             }
         }
 
