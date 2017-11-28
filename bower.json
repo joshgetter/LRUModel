@@ -9,7 +9,8 @@
     "iron-list": "^2.0.11",
     "app-layout": "PolymerElements/app-layout#^2.0.4",
     "iron-icons": "^2.0.1",
-    "paper-icon-button": "^2.0.1"
+    "paper-icon-button": "^2.0.1",
+    "iron-flex-layout": "^2.0.1"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^6.0.0",

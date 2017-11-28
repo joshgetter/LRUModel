@@ -1,0 +1,144 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../reference-buffer/reference-buffer.html">
+<link rel="import" href="../toolbar-element/toolbar-element.html">
+<link rel="import" href="../pcb-element/pcb-element.html">
+<link rel="import" href="../page-element/page-element.html">
+<link rel="import" href="../redux-mixin.html">
+
+<dom-module id="controller-element">
+    <link rel="import" type="css" href="controller-element.css">
+    <template>
+        <custom-style>
+            <style is="custom-style" include="iron-flex iron-flex-factors iron-flex-alignment"></style>
+        </custom-style>
+        <style>
+            :host {
+                display: block;
+                padding: 0px;
+            }
+        </style>
+        <toolbar-element></toolbar-element>
+        <div class="layout horizontal">
+            <div class="flex-2">
+                <h3>Reference Buffer</h3>
+                <reference-buffer></reference-buffer>
+            </div>
+            <div class="flex-2">
+                <h3>PCB's</h3>
+                <iron-list items="[[_getPcbKeys(pcbDictionary)]]" as="pcbKey">
+                    <template>
+                        <pcb-element pcb-id="{{pcbKey}}"></pcb-element>
+                    </template>
+                </iron-list>
+            </div>
+            <div class="flex-2">
+                <h3>Page List</h3>
+                <iron-list items="[[pageTableList]]">
+                    <template>
+                        <page-element page-table-id="[[index]]"></page-element>
+                    </template>
+                </iron-list>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        /**
+         * @customElement
+         * @polymer
+         */
+        class ControllerElement extends ReduxMixin(Polymer.Element) {
+            static get is() { return 'controller-element'; }
+            static get properties() {
+                return {
+                    referenceList:{
+                        type: Array,
+                        statePath: REFERENCE_LIST
+                    },
+                    currentReference:{
+                        type: Number,
+                        statePath: CURRENT_REFERENCE,
+                        observer: '_handleReferenceChange'
+                    },
+                    pcbDictionary:{
+                        type: Object,
+                        statePath: PCB_DICTIONARY,
+                    },
+                    pageTableList:{
+                        type: Array,
+                        statePath: PAGETABLE_LIST
+                    },
+                    physicalFrameList:{
+                        type: Array,
+                        statePath:PHYSICALFRAME_LIST
+                    }
+                };
+            }
+            _handleReferenceChange() {
+                if(this.referenceList.length > 0){
+                    var pid = this.referenceList[this.currentReference].process
+                    var processPcb = this.pcbDictionary[pid];
+                    if (processPcb) {
+                        //PCB Exists
+                        //TODO Show check if reference is exists -> Good (do nothing), otherwise move into physical M
+                        this._updatePcb(processPcb)
+                    } else {
+                        //Create new PCB
+                        var creatingPcb = new PCB(pid);
+                        creatingPcb.pageTableId = Object.keys(this.pageTableList).length;
+                        //Create new PAGE TABLE
+                        var creatingPageTable = new PageTable(pid);
+                        //Insert both into Redux store
+                        this.dispatch({type: ADD_PAGETABLE, payload: {PageTable: creatingPageTable}});
+                        this.dispatch({type: ADD_PCB, payload: {Pid: pid, Pcb: creatingPcb}});
+                        this._updatePcb(creatingPcb);
+                    }
+                }
+            }
+            _updatePcb(pcb){
+                this._updatePageTable(pcb.pageTableId);
+            }
+            _updatePageTable(pageTableId){
+                var pageTable = this.pageTableList[pageTableId];
+                var ref = this.referenceList[this.currentReference];
+                var result = pageTable.entries.find(entry => entry.page == ref.reference);
+                if(result){
+                    //Increment frame reference
+                    this.dispatch({type: INC_FRAMEREF, payload:{FrameIndex: result[0].frame}});
+                }else{
+                    //entry doesn't exist in page table
+                    if(this.physicalFrameList.length < 16){
+                        //add to frame list
+                        var pageTableEntry = new PageTableEntry(ref.reference,this.physicalFrameList.length);
+                        var frameEntry = new PhysicalEntry(pageTable.process,ref.reference);
+                        this.dispatch({type: ADD_FRAME, payload:{PhysicalFrame: frameEntry}});
+                        this.dispatch({type: ADD_PAGEENTRY,payload:{PageTableIndex: pageTableId,PageTableEntry: pageTableEntry}});
+                    }else{
+                        //TODO LRU REQUIRED
+                    }
+                    console.log('page fault');
+                }
+            }
+            _getPcbKeys(val){
+                if(val){
+                    return Object.keys(val);
+                }
+            }
+            _getPcbProcess(val){
+                if(val){
+                    return this.pcbDictionary[val].process;
+                }
+            }
+            _getPcbPageTableId(val){
+                if(val){
+                    return this.pcbDictionary[val].pageTableId;
+                }
+            }
+
+
+        }
+
+        window.customElements.define(ControllerElement.is, ControllerElement);
+    </script>
+</dom-module>

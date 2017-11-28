@@ -1,0 +1,65 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../redux-mixin.html">
+
+<dom-module id="pcb-element">
+    <template>
+        <custom-style>
+            <style is="custom-style" include="iron-flex iron-flex-factors iron-flex-alignment"></style>
+        </custom-style>
+        <style>
+            :host {
+                display: block;
+                padding: 0px;
+            }
+            .header{
+                background-color: #388e3c;
+            }
+        </style>
+        <div class="layout vertical table">
+            <div class="header">
+                Process [[pcb.process]] PCB
+            </div>
+            <div class="layout horizontal">
+                <div class="flex-2">Page Table:</div>
+                <div class="flex-2">[[pcb.pageTableId]]</div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        /**
+         * @customElement
+         * @polymer
+         */
+        class PcbElement extends ReduxMixin(Polymer.Element) {
+            static get is() { return 'pcb-element'; }
+            static get properties() {
+                return {
+                    pcbId:{
+                        type: String
+                    },
+                    pcbDictionary:{
+                        type: Object,
+                        statePath: PCB_DICTIONARY,
+                    },
+                    pageTableList:{
+                        type: Object,
+                        statePath: PAGETABLE_LIST
+                    },
+                    pcb:{
+                        type: Object,
+                        computed: '_getPcb(pcbId)'
+                    }
+                };
+            }
+            _getPcb(val){
+                if(val){
+                    return this.pcbDictionary[val];
+                }
+            }
+        }
+
+        window.customElements.define(PcbElement.is, PcbElement);
+    </script>
+</dom-module>

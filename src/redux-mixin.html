@@ -2,18 +2,31 @@
 <link rel="import" href="../bower_components/polymer-redux/polymer-redux.html">
 <script src="../node_modules/redux/dist/redux.js"></script>
 <script>
-    const initialState = {ReferenceList:[], CurrentReference: 0};
+    const initialState = {ReferenceList:[], CurrentReference: 0, PageTableList:[], PcbDictionary: {}, PhysicalFrameList: []};
     const reducer = (state = initialState, action) => {
         switch(action.type){
             case ADD_REFERENCE:
-                //Add index
-                //var index = state.ReferenceList[state.ReferenceList.length-1] ? state.ReferenceList[state.ReferenceList.length-1].index +1 : 0;
-                //action.payload.row.index = index;
                 return {...state, ReferenceList: [...state.ReferenceList, action.payload.row]}
             case INC_REFERENCE:
                 return {...state, CurrentReference: state.CurrentReference+1};
+            case ADD_PAGETABLE:
+                return {...state, PageTableList: [...state.PageTableList, action.payload.PageTable]}
+            case ADD_PCB:
+                return {...state, PcbDictionary: {...state.PcbDictionary, [action.payload.Pid] : action.payload.Pcb}};
+            case ADD_FRAME:
+                return {...state, PhysicalFrameList: [...state.PhysicalFrameList, action.payload.PhysicalFrame]};
+            case INC_FRAMEREF:
+                return {...state, PhysicalFrameList: state.PhysicalFrameList.map(
+                        (frameEntry, i) => i === action.payload.FrameIndex ? {...frameEntry, refs: frameEntry.refs + 1} : frameEntry
+                    )};
+            case ADD_PAGEENTRY:
+                return {...state, PageTableList: [...state.PageTableList.map(
+                    (pageTable, i) => i == action.payload.PageTableIndex
+                        ? {...pageTable, entries: [...pageTable.entries, action.payload.PageTableEntry]} : {...pageTable}
+                )]};
             default: return state;
         }
     };
     const store = Redux.createStore(reducer);
-    ReduxMixin = PolymerRedux(store); // ReduxMixin has a GLOBAL scope </script>
+    ReduxMixin = PolymerRedux(store); // ReduxMixin has a GLOBAL scope
+</script>
