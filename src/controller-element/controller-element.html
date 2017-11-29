@@ -4,6 +4,7 @@
 <link rel="import" href="../toolbar-element/toolbar-element.html">
 <link rel="import" href="../pcb-element/pcb-element.html">
 <link rel="import" href="../page-element/page-element.html">
+<link rel="import" href="../frame-element/frame-element.html">
 <link rel="import" href="../redux-mixin.html">
 
 <dom-module id="controller-element">
@@ -40,6 +41,19 @@
                     </template>
                 </iron-list>
             </div>
+            <div class="flex-2">
+                <h3>Physical Memory</h3>
+                <div class="layout horizontal">
+                    <div class="flex-2">Frame</div>
+                    <div class="flex-2">Process</div>
+                    <div class="flex-2">Page</div>
+                </div>
+                <iron-list items="[[physicalFrameList]]">
+                    <template>
+                        <frame-element index="{{index}}" physical-entry="{{item}}"></frame-element>
+                    </template>
+                </iron-list>
+            </div>
         </div>
     </template>
 
@@ -58,6 +72,7 @@
                     },
                     currentReference:{
                         type: Number,
+                        value: 0,
                         statePath: CURRENT_REFERENCE,
                         observer: '_handleReferenceChange'
                     },
@@ -77,22 +92,24 @@
             }
 
             _handleReferenceChange() {
-                if(this.referenceList.length > 0){
-                    var pid = this.referenceList[this.currentReference].process
-                    var processPcb = this.pcbDictionary[pid];
-                    if (processPcb) {
-                        //PCB Exists
-                        this._updatePcb(processPcb)
-                    } else {
-                        //Create new PCB
-                        var creatingPcb = new PCB(pid);
-                        creatingPcb.pageTableId = Object.keys(this.pageTableList).length;
-                        //Create new PAGE TABLE
-                        var creatingPageTable = new PageTable(pid);
-                        //Insert both into Redux store
-                        this.dispatch({type: ADD_PAGETABLE, payload: {PageTable: creatingPageTable}});
-                        this.dispatch({type: ADD_PCB, payload: {Pid: pid, Pcb: creatingPcb}});
-                        this._updatePcb(creatingPcb);
+                if(this.referenceList) {
+                    if (this.referenceList.length > 0) {
+                        var pid = this.referenceList[this.currentReference].process
+                        var processPcb = this.pcbDictionary[pid];
+                        if (processPcb) {
+                            //PCB Exists
+                            this._updatePcb(processPcb)
+                        } else {
+                            //Create new PCB
+                            var creatingPcb = new PCB(pid);
+                            creatingPcb.pageTableId = Object.keys(this.pageTableList).length;
+                            //Create new PAGE TABLE
+                            var creatingPageTable = new PageTable(pid);
+                            //Insert both into Redux store
+                            this.dispatch({type: ADD_PAGETABLE, payload: {PageTable: creatingPageTable}});
+                            this.dispatch({type: ADD_PCB, payload: {Pid: pid, Pcb: creatingPcb}});
+                            this._updatePcb(creatingPcb);
+                        }
                     }
                 }
             }
@@ -138,7 +155,7 @@
                     return Object.keys(val);
                 }
             }
-           _addPageToMem(process, pageId, frameId, pageTableIndex){
+            _addPageToMem(process, pageId, frameId, pageTableIndex){
                 var pageTableEntry = new PageTableEntry(pageId,frameId);
                 var frameEntry = new PhysicalEntry(process,pageId);
                 this.dispatch({type:INSERT_FRAME, payload: {PhysicalFrame: frameEntry, PhysicalFrameIndex: frameId}});
