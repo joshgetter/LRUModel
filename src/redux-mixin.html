@@ -2,7 +2,8 @@
 <link rel="import" href="../bower_components/polymer-redux/polymer-redux.html">
 <script src="../node_modules/redux/dist/redux.js"></script>
 <script>
-    const initialState = {ReferenceList:[], CurrentReference: 0, PageTableList:[], PcbDictionary: {}, PhysicalFrameList: []};
+    const initialState = {ReferenceList:[], CurrentReference: 0, PageTableList:[], PcbDictionary: {},
+        PhysicalFrameList: Array(16)};
     const reducer = (state = initialState, action) => {
         switch(action.type){
             case ADD_REFERENCE:

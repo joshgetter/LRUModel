@@ -18,10 +18,13 @@
                 display: block;
                 padding: 0px;
             }
+            .header{
+                background-color: #388e3c;
+            }
         </style>
         <toolbar-element></toolbar-element>
         <div class="layout horizontal">
-            <div class="flex-2">
+            <div class="flex-1">
                 <h3>Reference Buffer</h3>
                 <reference-buffer></reference-buffer>
             </div>
@@ -43,16 +46,15 @@
             </div>
             <div class="flex-2">
                 <h3>Physical Memory</h3>
-                <div class="layout horizontal">
+                <div class="layout header horizontal">
                     <div class="flex-2">Frame</div>
                     <div class="flex-2">Process</div>
                     <div class="flex-2">Page</div>
+                    <div class="flex-2">Last Reference</div>
                 </div>
-                <iron-list items="[[physicalFrameList]]">
-                    <template>
-                        <frame-element index="{{index}}" physical-entry="{{item}}"></frame-element>
-                    </template>
-                </iron-list>
+                <template is="dom-repeat" items="[[physicalFrameList]]">
+                    <frame-element index="{{index}}" physical-entry="{{item}}"></frame-element>
+                </template>
             </div>
         </div>
     </template>
@@ -86,7 +88,8 @@
                     },
                     physicalFrameList:{
                         type: Array,
-                        statePath:PHYSICALFRAME_LIST
+                        statePath:PHYSICALFRAME_LIST,
+                        observer: '_observeFrameList'
                     }
                 };
             }
@@ -126,23 +129,40 @@
                 }else{
                     console.log('page fault');
                     //entry doesn't exist in page table
-                    if(this.physicalFrameList.length < 16){
+                    if(this.physicalFrameList.includes(undefined)){
+                        //Frame list contains free spaces
+                        //Get first empty cell
+                        var insertIndex = this.physicalFrameList.findIndex((item)=>{return item ? false : true;});
+
                         //Create memory entries (virtual and physical)
-                        this._addPageToMem(pageTable.process,ref.reference,this.physicalFrameList.length,pageTableId);
+                        this._addPageToMem(pageTable.process,ref.reference,insertIndex,pageTableId);
+
                         //set frame reference
-                        this.dispatch({type: SET_FRAMEREF, payload:{FrameIndex: this.physicalFrameList.length-1, ReferenceValue: this.currentReference}});
+                        this.dispatch({type: SET_FRAMEREF, payload:{FrameIndex: insertIndex, ReferenceValue: this.currentReference}});
                     }else{
-                        //TODO LRU REQUIRED
+                        //No free spots exist -> Must use LRU to choose victim
+
+                        //Get victim index
                         var victimIndex = this._getLeastRecentlyUsed();
-                        //TODO REMOVE BASED ON INDEX RETURNED
-                        //Remove victim page table entry
+
+                        //Get victim frame
                         var victimFrame = this.physicalFrameList[victimIndex];
+
+                        //Get victim page table
                         var victimPageTableEntry = this.pageTableList[this.pcbDictionary[victimFrame.process].pageTableId];
+
+                        //Determine which page table entry in process page table needs to be removed
                         var removalEntryIndex = victimPageTableEntry.entries.findIndex(entry => entry.page == victimFrame.page);
+
+                        //Determine overall page table index (As they're in a array (in redux))
                         var victimPageTableId = this.pcbDictionary[victimFrame.process].pageTableId;
+
+                        //remove page table entry
                         this.dispatch({type: REMOVE_PAGEENTRY, payload:{PageTableIndex: victimPageTableId, PageTableEntry: removalEntryIndex}})
-                        //Create memory entries (virtual and physical)
+
+                        //Create memory entries (virtual and physical) (This is a replacement)
                         this._addPageToMem(pageTable.process,ref.reference,victimIndex,pageTableId);
+
                         //Set Frame reference
                         this.dispatch({type: SET_FRAMEREF, payload:{FrameIndex: victimIndex, ReferenceValue: this.currentReference}});
                         console.log('Purging victim: ');
@@ -164,14 +184,18 @@
             _getLeastRecentlyUsed(){
                 var minValIndex = 0;
                 this.physicalFrameList.forEach(function(entry,index){
-                    if(entry.ref < this.physicalFrameList[minValIndex].ref){
-                        minValIndex = index;
+                    if(entry) {
+                        if (entry.ref < this.physicalFrameList[minValIndex].ref) {
+                            minValIndex = index;
+                        }
                     }
                 }.bind(this));
                 return minValIndex;
             }
+            _observeFrameList(){
+                console.log("observe frame");
+            }
         }
-
         window.customElements.define(ControllerElement.is, ControllerElement);
     </script>
 </dom-module>

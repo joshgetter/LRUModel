@@ -20,6 +20,7 @@
             <div class="flex-2">{{index}}</div>
             <div class="flex-2">{{physicalEntry.process}}</div>
             <div class="flex-2">{{physicalEntry.page}}</div>
+            <div class="flex-2">{{physicalEntry.ref}}</div>
         </div>
     </template>
 
@@ -37,8 +38,15 @@
                     },
                     index:{
                         type: Number
+                    },
+                    currentReference:{
+                        type: Number,
+                        statePath: CURRENT_REFERENCE
                     }
                 };
+            }
+            _getRefDifference(currRef, frameRef){
+                return currRef - frameRef
             }
         }
         window.customElements.define(FrameElement.is, FrameElement);

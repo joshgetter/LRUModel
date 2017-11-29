@@ -82,7 +82,6 @@
                     //Add new reference to store
                     this.dispatch({type: ADD_REFERENCE, payload:{row: reference}});
                 }.bind(this));
-                this.currentSelected = 0;
             }
             _calculateSelected(index, currentRef){
                 if(index == currentRef) {return true;}
