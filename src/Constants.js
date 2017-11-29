@@ -3,9 +3,10 @@ const ADD_REFERENCE = 'AddReference';
 const INC_REFERENCE = 'IncReference';
 const ADD_PAGETABLE = 'AddPageTable';
 const ADD_PCB = 'AddPcb';
-const ADD_FRAME = 'AddFrame';
-const INC_FRAMEREF = "IncFrameRef";
+const INSERT_FRAME = 'AddFrame';
+const SET_FRAMEREF = "SetFrameRef";
 const ADD_PAGEENTRY = 'AddPageEntry';
+const REMOVE_PAGEENTRY = 'RemovePageEntry';
 //STORE ENTRIES
 const REFERENCE_LIST = 'ReferenceList';
 const CURRENT_REFERENCE = 'CurrentReference';

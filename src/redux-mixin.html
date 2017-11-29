@@ -13,17 +13,24 @@
                 return {...state, PageTableList: [...state.PageTableList, action.payload.PageTable]}
             case ADD_PCB:
                 return {...state, PcbDictionary: {...state.PcbDictionary, [action.payload.Pid] : action.payload.Pcb}};
-            case ADD_FRAME:
-                return {...state, PhysicalFrameList: [...state.PhysicalFrameList, action.payload.PhysicalFrame]};
-            case INC_FRAMEREF:
+            case INSERT_FRAME:
+                return {...state, PhysicalFrameList: [...state.PhysicalFrameList.slice(0,action.payload.PhysicalFrameIndex),
+                action.payload.PhysicalFrame,...state.PhysicalFrameList.slice(action.payload.PhysicalFrameIndex+1)]};
+            case SET_FRAMEREF:
                 return {...state, PhysicalFrameList: state.PhysicalFrameList.map(
-                        (frameEntry, i) => i === action.payload.FrameIndex ? {...frameEntry, refs: frameEntry.refs + 1} : frameEntry
-                    )};
+                    (frameEntry, i) => i === action.payload.FrameIndex ? {...frameEntry, ref: action.payload.ReferenceValue} : frameEntry
+                )};
             case ADD_PAGEENTRY:
-                return {...state, PageTableList: [...state.PageTableList.map(
+                return {...state, PageTableList: state.PageTableList.map(
                     (pageTable, i) => i == action.payload.PageTableIndex
                         ? {...pageTable, entries: [...pageTable.entries, action.payload.PageTableEntry]} : {...pageTable}
-                )]};
+                )};
+            case REMOVE_PAGEENTRY:
+                return {...state, PageTableList: state.PageTableList.map(
+                    (pageTable, i) => i == action.payload.PageTableIndex
+                        ? {...pageTable, entries: [...pageTable.entries.slice(0, action.payload.PageTableEntry),
+                            ...pageTable.entries.slice(action.payload.PageTableEntry+1)]} : {...pageTable}
+                )};
             default: return state;
         }
     };

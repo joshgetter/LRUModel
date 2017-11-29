@@ -36,7 +36,7 @@
                 <h3>Page List</h3>
                 <iron-list items="[[pageTableList]]">
                     <template>
-                        <page-element page-table-id="[[index]]"></page-element>
+                        <page-element page-table="{{item}}"></page-element>
                     </template>
                 </iron-list>
             </div>
@@ -75,13 +75,13 @@
                     }
                 };
             }
+
             _handleReferenceChange() {
                 if(this.referenceList.length > 0){
                     var pid = this.referenceList[this.currentReference].process
                     var processPcb = this.pcbDictionary[pid];
                     if (processPcb) {
                         //PCB Exists
-                        //TODO Show check if reference is exists -> Good (do nothing), otherwise move into physical M
                         this._updatePcb(processPcb)
                     } else {
                         //Create new PCB
@@ -104,20 +104,33 @@
                 var ref = this.referenceList[this.currentReference];
                 var result = pageTable.entries.find(entry => entry.page == ref.reference);
                 if(result){
-                    //Increment frame reference
-                    this.dispatch({type: INC_FRAMEREF, payload:{FrameIndex: result[0].frame}});
+                    //Set frame reference
+                    this.dispatch({type: SET_FRAMEREF, payload:{FrameIndex: result.frame, ReferenceValue: this.currentReference}});
                 }else{
+                    console.log('page fault');
                     //entry doesn't exist in page table
                     if(this.physicalFrameList.length < 16){
-                        //add to frame list
-                        var pageTableEntry = new PageTableEntry(ref.reference,this.physicalFrameList.length);
-                        var frameEntry = new PhysicalEntry(pageTable.process,ref.reference);
-                        this.dispatch({type: ADD_FRAME, payload:{PhysicalFrame: frameEntry}});
-                        this.dispatch({type: ADD_PAGEENTRY,payload:{PageTableIndex: pageTableId,PageTableEntry: pageTableEntry}});
+                        //Create memory entries (virtual and physical)
+                        this._addPageToMem(pageTable.process,ref.reference,this.physicalFrameList.length,pageTableId);
+                        //set frame reference
+                        this.dispatch({type: SET_FRAMEREF, payload:{FrameIndex: this.physicalFrameList.length-1, ReferenceValue: this.currentReference}});
                     }else{
                         //TODO LRU REQUIRED
+                        var victimIndex = this._getLeastRecentlyUsed();
+                        //TODO REMOVE BASED ON INDEX RETURNED
+                        //Remove victim page table entry
+                        var victimFrame = this.physicalFrameList[victimIndex];
+                        var victimPageTableEntry = this.pageTableList[this.pcbDictionary[victimFrame.process].pageTableId];
+                        var removalEntryIndex = victimPageTableEntry.entries.findIndex(entry => entry.page == victimFrame.page);
+                        var victimPageTableId = this.pcbDictionary[victimFrame.process].pageTableId;
+                        this.dispatch({type: REMOVE_PAGEENTRY, payload:{PageTableIndex: victimPageTableId, PageTableEntry: removalEntryIndex}})
+                        //Create memory entries (virtual and physical)
+                        this._addPageToMem(pageTable.process,ref.reference,victimIndex,pageTableId);
+                        //Set Frame reference
+                        this.dispatch({type: SET_FRAMEREF, payload:{FrameIndex: victimIndex, ReferenceValue: this.currentReference}});
+                        console.log('Purging victim: ');
+                        console.log(victimIndex);
                     }
-                    console.log('page fault');
                 }
             }
             _getPcbKeys(val){
@@ -125,18 +138,21 @@
                     return Object.keys(val);
                 }
             }
-            _getPcbProcess(val){
-                if(val){
-                    return this.pcbDictionary[val].process;
-                }
+           _addPageToMem(process, pageId, frameId, pageTableIndex){
+                var pageTableEntry = new PageTableEntry(pageId,frameId);
+                var frameEntry = new PhysicalEntry(process,pageId);
+                this.dispatch({type:INSERT_FRAME, payload: {PhysicalFrame: frameEntry, PhysicalFrameIndex: frameId}});
+                this.dispatch({type: ADD_PAGEENTRY, payload:{PageTableIndex: pageTableIndex, PageTableEntry: pageTableEntry}});
             }
-            _getPcbPageTableId(val){
-                if(val){
-                    return this.pcbDictionary[val].pageTableId;
-                }
+            _getLeastRecentlyUsed(){
+                var minValIndex = 0;
+                this.physicalFrameList.forEach(function(entry,index){
+                    if(entry.ref < this.physicalFrameList[minValIndex].ref){
+                        minValIndex = index;
+                    }
+                }.bind(this));
+                return minValIndex;
             }
-
-
         }
 
         window.customElements.define(ControllerElement.is, ControllerElement);

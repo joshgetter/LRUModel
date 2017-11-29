@@ -29,12 +29,6 @@ class PageTable{
         this.process = process;
         this.entries = [];
     }
-    get entries(){
-        return this._entries;
-    }
-    set entries(entries){
-        this._entries = entries
-    }
 }
 
 class PageTableEntry{
@@ -48,6 +42,11 @@ class PhysicalEntry{
     constructor(process, page){
         this.process = process;
         this.page = page;
-        this.refs = 1;
+    }
+    get ref(){
+        return this._ref;
+    }
+    set ref(ref){
+        this._ref = ref;
     }
 }

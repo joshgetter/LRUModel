@@ -76,6 +76,7 @@
                     lines.pop();
                 }
                 lines.forEach(function(line){
+                    //TODO Validate lines -> Is it in expected format and is ref string length = 6?
                     var reference = new ProcessReference(line.substr(0,line.indexOf(':'))
                         , line.substr(line.indexOf(':')+1).trim());
                     //Add new reference to store
