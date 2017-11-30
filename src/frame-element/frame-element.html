@@ -11,9 +11,9 @@
             :host {
                 display: block;
                 padding: 0px;
-            }
-            .header{
-                background-color: #388e3c;
+                height: 20px;
+                border-style: solid;
+                border-width: thin;
             }
         </style>
         <div class="layout horizontal table">
@@ -44,9 +44,6 @@
                         statePath: CURRENT_REFERENCE
                     }
                 };
-            }
-            _getRefDifference(currRef, frameRef){
-                return currRef - frameRef
             }
         }
         window.customElements.define(FrameElement.is, FrameElement);

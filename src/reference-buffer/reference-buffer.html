@@ -46,6 +46,8 @@
             }
             //EVENT HANDLERS
             fileChange(){
+                //TODO Reset all redux items
+                this.dispatch({type: RESET})
                 this._handleFileUpload();
             }
             //HELPERS

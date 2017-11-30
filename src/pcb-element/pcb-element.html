@@ -49,14 +49,14 @@
                     },
                     pcb:{
                         type: Object,
-                        computed: '_getPcb(pcbId)'
+                        computed: '_getPcb(pcbId,pcbDictionary)'
                     }
                 };
             }
-            _getPcb(val){
-                if(val){
-                    return this.pcbDictionary[val];
-                }
+            _getPcb(pcbId, pcbDictionary){
+               if(pcbDictionary){
+                   return pcbDictionary[pcbId];
+               }
             }
         }
 

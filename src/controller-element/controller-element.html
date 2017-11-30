@@ -5,6 +5,7 @@
 <link rel="import" href="../pcb-element/pcb-element.html">
 <link rel="import" href="../page-element/page-element.html">
 <link rel="import" href="../frame-element/frame-element.html">
+<link rel="import" href="../free-element/free-element.html">
 <link rel="import" href="../redux-mixin.html">
 
 <dom-module id="controller-element">
@@ -30,19 +31,15 @@
             </div>
             <div class="flex-2">
                 <h3>PCB's</h3>
-                <iron-list items="[[_getPcbKeys(pcbDictionary)]]" as="pcbKey">
-                    <template>
-                        <pcb-element pcb-id="{{pcbKey}}"></pcb-element>
-                    </template>
-                </iron-list>
+                <template is="dom-repeat" items="{{_getPcbKeys(pcbDictionary)}}">
+                    <pcb-element pcb-id="{{item}}"></pcb-element>
+                </template>
             </div>
             <div class="flex-2">
                 <h3>Page List</h3>
-                <iron-list items="[[pageTableList]]">
-                    <template>
-                        <page-element page-table="{{item}}"></page-element>
-                    </template>
-                </iron-list>
+                <template is="dom-repeat" items="{{pageTableList}}">
+                    <page-element page-table="{{item}}"></page-element>
+                </template>
             </div>
             <div class="flex-2">
                 <h3>Physical Memory</h3>
@@ -50,10 +47,17 @@
                     <div class="flex-2">Frame</div>
                     <div class="flex-2">Process</div>
                     <div class="flex-2">Page</div>
-                    <div class="flex-2">Last Reference</div>
+                    <div class="flex-2">Referenced</div>
                 </div>
                 <template is="dom-repeat" items="[[physicalFrameList]]">
                     <frame-element index="{{index}}" physical-entry="{{item}}"></frame-element>
+                </template>
+            </div>
+            <div class="flex-1">
+                <h3>Free Frames</h3>
+                <div class="header">Free Frames</div>
+                <template is="dom-repeat" items="[[physicalFrameList]]">
+                    <free-element index="{{index}}"></free-element>
                 </template>
             </div>
         </div>
@@ -80,7 +84,7 @@
                     },
                     pcbDictionary:{
                         type: Object,
-                        statePath: PCB_DICTIONARY,
+                        statePath: PCB_DICTIONARY
                     },
                     pageTableList:{
                         type: Array,
@@ -88,12 +92,10 @@
                     },
                     physicalFrameList:{
                         type: Array,
-                        statePath:PHYSICALFRAME_LIST,
-                        observer: '_observeFrameList'
+                        statePath:PHYSICALFRAME_LIST
                     }
                 };
             }
-
             _handleReferenceChange() {
                 if(this.referenceList) {
                     if (this.referenceList.length > 0) {
@@ -191,9 +193,6 @@
                     }
                 }.bind(this));
                 return minValIndex;
-            }
-            _observeFrameList(){
-                console.log("observe frame");
             }
         }
         window.customElements.define(ControllerElement.is, ControllerElement);

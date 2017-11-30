@@ -1,0 +1,74 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../redux-mixin.html">
+
+<dom-module id="free-element">
+    <template>
+        <custom-style>
+            <style is="custom-style" include="iron-flex iron-flex-factors iron-flex-alignment"></style>
+        </custom-style>
+        <style>
+            :host {
+                display: block;
+                padding: 0px;
+                height: 20px;
+                background-color: red;
+                border-style: solid;
+                border-width: thin;
+            }
+            div[is-free]{
+                background-color: green !important;
+                height:20px;
+            }
+            :not(div[is-free]){
+                background-color: red;
+                height: 20px;
+            }
+        </style>
+        <div is-free$="{{isFree}}">
+            {{phrase}}
+        </div>
+    </template>
+
+    <script>
+        /**
+         * @customElement
+         * @polymer
+         */
+        class FreeElement extends ReduxMixin(Polymer.Element) {
+            static get is() { return 'free-element'; }
+            static get properties() {
+                return {
+                    index: {
+                        type: Number
+                    },
+                    physicalFrameList: {
+                        type: Array,
+                        statePath: PHYSICALFRAME_LIST,
+                        observer: '_calculateIsFree'
+                    },
+                    isFree: {
+                        type: Boolean,
+                        notify: true
+                    },
+                    phrase:{
+                        type: String
+                    }
+                };
+            }
+
+            _calculateIsFree(){
+                if(this.physicalFrameList){
+                    this.isFree = this.physicalFrameList[this.index] ? false : true;
+                }else{
+                    this.isFree = true;
+                }
+                this._calculatePhrase();
+            }
+            _calculatePhrase(){
+                this.phrase = this.isFree ? "Free" : "Used";
+            }
+        }
+        window.customElements.define(FreeElement.is, FreeElement);
+    </script>
+</dom-module>

@@ -6,6 +6,8 @@
         PhysicalFrameList: Array(16)};
     const reducer = (state = initialState, action) => {
         switch(action.type){
+            case RESET:
+                return initialState;
             case ADD_REFERENCE:
                 return {...state, ReferenceList: [...state.ReferenceList, action.payload.row]}
             case INC_REFERENCE:
