@@ -10,6 +10,7 @@ const REMOVE_PAGEENTRY = 'RemovePageEntry';
 const RESET = 'Reset';
 const INC_PROCESSPAGEFAULT = 'IncProcessPageFault';
 const INC_PROCESSMEMORYREF = 'IncProcessMemoryRef';
+const ADD_UNIQUEPAGEENTRY = 'AddUniquePageEntry';
 //STORE ENTRIES
 const REFERENCE_LIST = 'ReferenceList';
 const CURRENT_REFERENCE = 'CurrentReference';

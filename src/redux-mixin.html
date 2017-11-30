@@ -16,6 +16,10 @@
                 return {...state, PcbDictionary: {...state.PcbDictionary,
                     [action.payload.Process] : {...state.PcbDictionary[action.payload.Process],
                     memoryReferences: state.PcbDictionary[action.payload.Process].memoryReferences + 1}}};
+            case ADD_UNIQUEPAGEENTRY:
+                return {...state, PcbDictionary : {...state.PcbDictionary,
+                    [action.payload.Process] : {...state.PcbDictionary[action.payload.Process],
+                    uniquePages: [...new Set([...state.PcbDictionary[action.payload.Process].uniquePages, action.payload.UniquePage])]}}};
             case ADD_REFERENCE:
                 return {...state, ReferenceList: [...state.ReferenceList, action.payload.row]}
             case INC_REFERENCE:

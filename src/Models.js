@@ -18,13 +18,8 @@ class PCB{
         this.pageFaults = 0;
         this.pageTableId;
         this.memoryReferences = 0;
+        this.uniquePages = [];
     }
-    /*get pageTableId(){
-        return this._pageTableId;
-    }
-    set pageTableId(pageTableId){
-        this._pageTableId = pageTableId;
-    }*/
 }
 
 class PageTable{

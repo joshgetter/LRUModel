@@ -6,6 +6,7 @@
 <link rel="import" href="../page-element/page-element.html">
 <link rel="import" href="../frame-element/frame-element.html">
 <link rel="import" href="../free-element/free-element.html">
+<link rel="import" href="../stats-element/stats-element.html">
 <link rel="import" href="../redux-mixin.html">
 
 <dom-module id="controller-element">
@@ -41,24 +42,31 @@
                     <page-element index="{{index}}" page-table="{{item}}"></page-element>
                 </template>
             </div>
-            <div class="flex-2">
-                <h3>Physical Memory</h3>
-                <div class="layout header horizontal">
-                    <div class="flex-2">Frame</div>
-                    <div class="flex-2">Process</div>
-                    <div class="flex-2">Page</div>
-                    <div class="flex-2">Referenced</div>
+            <div class="flex-3 layout vertical">
+                <div class="layout horizontal">
+                    <div class="flex-2">
+                        <h3>Physical Memory</h3>
+                        <div class="layout header horizontal">
+                            <div class="flex-2">Frame</div>
+                            <div class="flex-2">Process</div>
+                            <div class="flex-2">Page</div>
+                            <div class="flex-2">Referenced</div>
+                        </div>
+                        <template is="dom-repeat" items="[[physicalFrameList]]">
+                            <frame-element index="{{index}}" physical-entry="{{item}}"></frame-element>
+                        </template>
+                    </div>
+                    <div class="flex-1">
+                        <h3>Free Frames</h3>
+                        <div class="header">Free Frames</div>
+                        <template is="dom-repeat" items="[[physicalFrameList]]">
+                            <free-element index="{{index}}"></free-element>
+                        </template>
+                    </div>
                 </div>
-                <template is="dom-repeat" items="[[physicalFrameList]]">
-                    <frame-element index="{{index}}" physical-entry="{{item}}"></frame-element>
-                </template>
-            </div>
-            <div class="flex-1">
-                <h3>Free Frames</h3>
-                <div class="header">Free Frames</div>
-                <template is="dom-repeat" items="[[physicalFrameList]]">
-                    <free-element index="{{index}}"></free-element>
-                </template>
+                <div>
+                    <stats-element></stats-element>
+                </div>
             </div>
         </div>
     </template>
@@ -143,9 +151,14 @@
                     //Set frame reference
                     this.dispatch({type: SET_FRAMEREF, payload:{FrameIndex: result.frame, ReferenceValue: this.currentReference}});
                 }else{
+                    //entry doesn't exist in page table -> Page fault
+
+                    //Increment process page fault counter
                     this.dispatch({type:INC_PROCESSPAGEFAULT, payload:{Process: ref.process}})
-                    console.log('page fault');
-                    //entry doesn't exist in page table
+
+                    //Add page to pcb set (implicitly unique by default) -> For tracking page size
+                    this.dispatch({type: ADD_UNIQUEPAGEENTRY, payload:{Process: ref.process, UniquePage: ref.reference}});
+
                     if(this.physicalFrameList.includes(undefined)){
                         //Frame list contains free spaces
                         //Get first empty cell

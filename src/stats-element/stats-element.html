@@ -1,0 +1,71 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../redux-mixin.html">
+
+<dom-module id="stats-element">
+    <template>
+        <custom-style>
+            <style is="custom-style" include="iron-flex iron-flex-factors iron-flex-alignment"></style>
+        </custom-style>
+        <style>
+            :host {
+                display: block;
+                padding: 0px;
+                height: 20px;
+            }
+        </style>
+        <div class="layout vertical">
+            <div class="layout horizontal">
+                <div class="flex">Total Memory References:</div>
+                <div class="flex">[[_calculateRefs(pcbDictionary)]]</div>
+            </div>
+            <div class="layout horizontal">
+                <div class="flex">Total Page Faults</div>
+                <div class="flex">[[_calculateFaults(pcbDictionary)]]</div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        /**
+         * @customElement
+         * @polymer
+         */
+        class StatsElement extends ReduxMixin(Polymer.Element) {
+            static get is() { return 'stats-element'; }
+            static get properties() {
+                return {
+                    pcbDictionary:{
+                        type: Object,
+                        statePath: PCB_DICTIONARY,
+                        observer:'_observe'
+                    }
+                };
+            }
+            _observe(){
+                console.log();
+            }
+            _calculateRefs(pcbDictionary){
+                if(pcbDictionary){
+                    var totalRefs = 0;
+                    Object.keys(pcbDictionary).forEach((item) =>{
+                        var pcb = pcbDictionary[item];
+                        totalRefs += pcb.memoryReferences;
+                    });
+                    return totalRefs;
+                }
+            }
+            _calculateFaults(pcbDictionary){
+                if(pcbDictionary){
+                    var totalFaults = 0;
+                    Object.keys(pcbDictionary).forEach((item) =>{
+                        var pcb = pcbDictionary[item];
+                        totalFaults += pcb.pageFaults;
+                    });
+                    return totalFaults;
+                }
+            }
+        }
+        window.customElements.define(StatsElement.is, StatsElement);
+    </script>
+</dom-module>

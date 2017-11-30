@@ -25,6 +25,7 @@
         <app-header reveals>
             <app-toolbar>
                 <div main-title>LRU Model</div>
+                <paper-icon-button icon="subdirectory-arrow-right" on-click="_handleEndClick"></paper-icon-button>
                 <paper-icon-button icon="arrow-forward" on-click="_handleNextClick"></paper-icon-button>
             </app-toolbar>
         </app-header>
@@ -53,6 +54,11 @@
                 if(this.currentReference + 1 < this.referenceList.length){
                     //can go to next reference string
                     this.dispatch({type:INC_REFERENCE, payload:{}});
+                }
+            }
+            _handleEndClick(){
+                for(let x =0 ; x < this.referenceList.length; x++){
+                    this._handleNextClick();
                 }
             }
         }
