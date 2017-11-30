@@ -15,17 +15,21 @@
             .header{
                 background-color: #388e3c;
             }
+            div[selected]{
+                color:darkred;
+                background-color: gray;
+            }
         </style>
         <div class="layout vertical table">
             <div class="header">
-                Table [[pageTableId]] - Process [[pageTable.process]]
+                Table [[index]] - Process [[pageTable.process]]
             </div>
             <div class="layout horizontal">
                 <div class="flex-2">Page</div>
                 <div class="flex-2">Frame</div>
             </div>
             <template is="dom-repeat" items="{{pageTable.entries}}">
-                <div class="layout horizontal">
+                <div class="layout horizontal" selected$="{{_calculateSelected(currentReference, item, referenceList, pageTable)}}">
                     <div class="flex-2">{{item.page}}</div>
                     <div class="flex-2">{{item.frame}}</div>
                 </div>
@@ -44,8 +48,31 @@
                 return {
                     pageTable:{
                         type: Object
+                    },
+                    currentReference:{
+                        type: Number,
+                        value: 0,
+                        statePath: CURRENT_REFERENCE
+                    },
+                    referenceList:{
+                        type: Array,
+                        statePath: REFERENCE_LIST
+                    },
+                    index:{
+                        type: Number
                     }
                 };
+            }
+            _calculateSelected(refId, pageEntry, referenceList, pageTable){
+                if(pageEntry && referenceList && pageTable) {
+                    var reference = referenceList[refId];
+                    if (reference) {
+                        if (reference.process == pageTable.process && reference.reference == pageEntry.page) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
             }
         }
         window.customElements.define(PageElement.is, PageElement);

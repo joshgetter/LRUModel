@@ -15,14 +15,28 @@
             .header{
                 background-color: #388e3c;
             }
+            div[selected]{
+                color:darkred;
+                background-color: gray;
+            }
         </style>
         <div class="layout vertical table">
             <div class="header">
                 Process [[pcb.process]] PCB
             </div>
-            <div class="layout horizontal">
-                <div class="flex-2">Page Table:</div>
-                <div class="flex-2">[[pcb.pageTableId]]</div>
+            <div selected$="{{_calculateSelected(currentReference, referenceList, pcb)}}">
+                <div class="layout horizontal">
+                    <div class="flex-2">Page Table:</div>
+                    <div class="flex-2">[[pcb.pageTableId]]</div>
+                </div>
+                <div class="layout horizontal">
+                    <div class="flex-2">Page Faults:</div>
+                    <div class="flex-2">[[pcb.pageFaults]]</div>
+                </div>
+                <div class="layout horizontal">
+                    <div class="flex-2">Memory References:</div>
+                    <div class="flex-2">[[pcb.memoryReferences]]</div>
+                </div>
             </div>
         </div>
     </template>
@@ -36,6 +50,15 @@
             static get is() { return 'pcb-element'; }
             static get properties() {
                 return {
+                    referenceList:{
+                        type: Array,
+                        statePath: REFERENCE_LIST
+                    },
+                    currentReference:{
+                        type: Number,
+                        value: 0,
+                        statePath: CURRENT_REFERENCE
+                    },
                     pcbId:{
                         type: String
                     },
@@ -54,9 +77,20 @@
                 };
             }
             _getPcb(pcbId, pcbDictionary){
-               if(pcbDictionary){
-                   return pcbDictionary[pcbId];
-               }
+                if(pcbDictionary){
+                    return pcbDictionary[pcbId];
+                }
+            }
+            _calculateSelected(refId, referenceList, pcb){
+                if(referenceList && pcb) {
+                    var reference = referenceList[refId];
+                    if (reference) {
+                        if (reference.process == pcb.process) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
             }
         }
 

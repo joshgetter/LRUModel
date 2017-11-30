@@ -15,8 +15,12 @@
                 border-style: solid;
                 border-width: thin;
             }
+            div[selected]{
+                color:darkred;
+                background-color: gray;
+            }
         </style>
-        <div class="layout horizontal table">
+        <div class="layout horizontal table" selected$="{{_calculateSelected(currentReference,referenceList,physicalEntry)}}">
             <div class="flex-2">{{index}}</div>
             <div class="flex-2">{{physicalEntry.process}}</div>
             <div class="flex-2">{{physicalEntry.page}}</div>
@@ -42,8 +46,23 @@
                     currentReference:{
                         type: Number,
                         statePath: CURRENT_REFERENCE
+                    },
+                    referenceList:{
+                        type: Array,
+                        statePath: REFERENCE_LIST
                     }
                 };
+            }
+            _calculateSelected(refId, referenceList, physicalEntry){
+                if(referenceList && physicalEntry){
+                    var reference = referenceList[refId];
+                    if(reference){
+                        if(physicalEntry.process == reference.process && physicalEntry.page == reference.reference){
+                            return true;
+                        }
+                    }
+                    return false;
+                }
             }
         }
         window.customElements.define(FrameElement.is, FrameElement);

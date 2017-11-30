@@ -8,6 +8,14 @@
         switch(action.type){
             case RESET:
                 return initialState;
+            case INC_PROCESSPAGEFAULT:
+                return {...state, PcbDictionary: {...state.PcbDictionary,
+                    [action.payload.Process] : {...state.PcbDictionary[action.payload.Process],
+                        pageFaults : state.PcbDictionary[action.payload.Process].pageFaults + 1}}};
+            case INC_PROCESSMEMORYREF:
+                return {...state, PcbDictionary: {...state.PcbDictionary,
+                    [action.payload.Process] : {...state.PcbDictionary[action.payload.Process],
+                    memoryReferences: state.PcbDictionary[action.payload.Process].memoryReferences + 1}}};
             case ADD_REFERENCE:
                 return {...state, ReferenceList: [...state.ReferenceList, action.payload.row]}
             case INC_REFERENCE:

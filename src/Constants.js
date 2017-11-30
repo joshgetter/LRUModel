@@ -8,6 +8,8 @@ const SET_FRAMEREF = 'SetFrameRef';
 const ADD_PAGEENTRY = 'AddPageEntry';
 const REMOVE_PAGEENTRY = 'RemovePageEntry';
 const RESET = 'Reset';
+const INC_PROCESSPAGEFAULT = 'IncProcessPageFault';
+const INC_PROCESSMEMORYREF = 'IncProcessMemoryRef';
 //STORE ENTRIES
 const REFERENCE_LIST = 'ReferenceList';
 const CURRENT_REFERENCE = 'CurrentReference';

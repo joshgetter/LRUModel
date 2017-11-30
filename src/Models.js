@@ -15,13 +15,16 @@ class ProcessReference{
 class PCB{
     constructor(process){
         this.process = process;
+        this.pageFaults = 0;
+        this.pageTableId;
+        this.memoryReferences = 0;
     }
-    get pageTableId(){
+    /*get pageTableId(){
         return this._pageTableId;
     }
     set pageTableId(pageTableId){
         this._pageTableId = pageTableId;
-    }
+    }*/
 }
 
 class PageTable{

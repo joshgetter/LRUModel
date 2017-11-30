@@ -38,7 +38,7 @@
             <div class="flex-2">
                 <h3>Page List</h3>
                 <template is="dom-repeat" items="{{pageTableList}}">
-                    <page-element page-table="{{item}}"></page-element>
+                    <page-element index="{{index}}" page-table="{{item}}"></page-element>
                 </template>
             </div>
             <div class="flex-2">
@@ -74,7 +74,8 @@
                 return {
                     referenceList:{
                         type: Array,
-                        statePath: REFERENCE_LIST
+                        statePath: REFERENCE_LIST,
+                        observer: '_refListObserver'
                     },
                     currentReference:{
                         type: Number,
@@ -95,6 +96,15 @@
                         statePath:PHYSICALFRAME_LIST
                     }
                 };
+            }
+            _refListObserver(newVal, oldVal){
+                if(oldVal){
+                    //Check to determine if new list is being updated (with first item)
+                    if(oldVal.length == 0 && newVal.length == 1){
+                        //trigger initial reference change
+                        this._handleReferenceChange();
+                    }
+                }
             }
             _handleReferenceChange() {
                 if(this.referenceList) {
@@ -124,11 +134,16 @@
             _updatePageTable(pageTableId){
                 var pageTable = this.pageTableList[pageTableId];
                 var ref = this.referenceList[this.currentReference];
+
+                //Register process memory ref
+                this.dispatch({type:INC_PROCESSMEMORYREF, payload:{Process:ref.process}});
+
                 var result = pageTable.entries.find(entry => entry.page == ref.reference);
                 if(result){
                     //Set frame reference
                     this.dispatch({type: SET_FRAMEREF, payload:{FrameIndex: result.frame, ReferenceValue: this.currentReference}});
                 }else{
+                    this.dispatch({type:INC_PROCESSPAGEFAULT, payload:{Process: ref.process}})
                     console.log('page fault');
                     //entry doesn't exist in page table
                     if(this.physicalFrameList.includes(undefined)){
