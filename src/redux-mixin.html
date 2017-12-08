@@ -2,53 +2,58 @@
 <link rel="import" href="../bower_components/polymer-redux/polymer-redux.html">
 <script src="../node_modules/redux/dist/redux.js"></script>
 <script>
-    const initialState = {ReferenceList:[], CurrentReference: 0, PageTableList:[], PcbDictionary: {},
-        PhysicalFrameList: Array(16)};
-    const reducer = (state = initialState, action) => {
-        switch(action.type){
+    "use strict";
+
+    var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+    function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+    function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+    var initialState = { ReferenceList: [], CurrentReference: 0, PageTableList: [], PcbDictionary: {},
+        PhysicalFrameList: Array(16) };
+    var reducer = function reducer() {
+        var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+        var action = arguments[1];
+
+        switch (action.type) {
             case RESET:
                 return initialState;
             case INC_PROCESSPAGEFAULT:
-                return {...state, PcbDictionary: {...state.PcbDictionary,
-                    [action.payload.Process] : {...state.PcbDictionary[action.payload.Process],
-                        pageFaults : state.PcbDictionary[action.payload.Process].pageFaults + 1}}};
+                return _extends({}, state, { PcbDictionary: _extends({}, state.PcbDictionary, _defineProperty({}, action.payload.Process, _extends({}, state.PcbDictionary[action.payload.Process], {
+                    pageFaults: state.PcbDictionary[action.payload.Process].pageFaults + 1 }))) });
             case INC_PROCESSMEMORYREF:
-                return {...state, PcbDictionary: {...state.PcbDictionary,
-                    [action.payload.Process] : {...state.PcbDictionary[action.payload.Process],
-                    memoryReferences: state.PcbDictionary[action.payload.Process].memoryReferences + 1}}};
+                return _extends({}, state, { PcbDictionary: _extends({}, state.PcbDictionary, _defineProperty({}, action.payload.Process, _extends({}, state.PcbDictionary[action.payload.Process], {
+                    memoryReferences: state.PcbDictionary[action.payload.Process].memoryReferences + 1 }))) });
             case ADD_UNIQUEPAGEENTRY:
-                return {...state, PcbDictionary : {...state.PcbDictionary,
-                    [action.payload.Process] : {...state.PcbDictionary[action.payload.Process],
-                    uniquePages: [...new Set([...state.PcbDictionary[action.payload.Process].uniquePages, action.payload.UniquePage])]}}};
+                return _extends({}, state, { PcbDictionary: _extends({}, state.PcbDictionary, _defineProperty({}, action.payload.Process, _extends({}, state.PcbDictionary[action.payload.Process], {
+                    uniquePages: [].concat(_toConsumableArray(new Set([].concat(_toConsumableArray(state.PcbDictionary[action.payload.Process].uniquePages), [action.payload.UniquePage])))) }))) });
             case ADD_REFERENCE:
-                return {...state, ReferenceList: [...state.ReferenceList, action.payload.row]}
+                return _extends({}, state, { ReferenceList: [].concat(_toConsumableArray(state.ReferenceList), [action.payload.row]) });
             case INC_REFERENCE:
-                return {...state, CurrentReference: state.CurrentReference+1};
+                return _extends({}, state, { CurrentReference: state.CurrentReference + 1 });
             case ADD_PAGETABLE:
-                return {...state, PageTableList: [...state.PageTableList, action.payload.PageTable]}
+                return _extends({}, state, { PageTableList: [].concat(_toConsumableArray(state.PageTableList), [action.payload.PageTable]) });
             case ADD_PCB:
-                return {...state, PcbDictionary: {...state.PcbDictionary, [action.payload.Pid] : action.payload.Pcb}};
+                return _extends({}, state, { PcbDictionary: _extends({}, state.PcbDictionary, _defineProperty({}, action.payload.Pid, action.payload.Pcb)) });
             case INSERT_FRAME:
-                return {...state, PhysicalFrameList: [...state.PhysicalFrameList.slice(0,action.payload.PhysicalFrameIndex),
-                action.payload.PhysicalFrame,...state.PhysicalFrameList.slice(action.payload.PhysicalFrameIndex+1)]};
+                return _extends({}, state, { PhysicalFrameList: [].concat(_toConsumableArray(state.PhysicalFrameList.slice(0, action.payload.PhysicalFrameIndex)), [action.payload.PhysicalFrame], _toConsumableArray(state.PhysicalFrameList.slice(action.payload.PhysicalFrameIndex + 1))) });
             case SET_FRAMEREF:
-                return {...state, PhysicalFrameList: state.PhysicalFrameList.map(
-                    (frameEntry, i) => i === action.payload.FrameIndex ? {...frameEntry, ref: action.payload.ReferenceValue} : frameEntry
-                )};
+                return _extends({}, state, { PhysicalFrameList: state.PhysicalFrameList.map(function (frameEntry, i) {
+                    return i === action.payload.FrameIndex ? _extends({}, frameEntry, { ref: action.payload.ReferenceValue }) : frameEntry;
+                }) });
             case ADD_PAGEENTRY:
-                return {...state, PageTableList: state.PageTableList.map(
-                    (pageTable, i) => i == action.payload.PageTableIndex
-                        ? {...pageTable, entries: [...pageTable.entries, action.payload.PageTableEntry]} : {...pageTable}
-                )};
+                return _extends({}, state, { PageTableList: state.PageTableList.map(function (pageTable, i) {
+                    return i == action.payload.PageTableIndex ? _extends({}, pageTable, { entries: [].concat(_toConsumableArray(pageTable.entries), [action.payload.PageTableEntry]) }) : _extends({}, pageTable);
+                }) });
             case REMOVE_PAGEENTRY:
-                return {...state, PageTableList: state.PageTableList.map(
-                    (pageTable, i) => i == action.payload.PageTableIndex
-                        ? {...pageTable, entries: [...pageTable.entries.slice(0, action.payload.PageTableEntry),
-                            ...pageTable.entries.slice(action.payload.PageTableEntry+1)]} : {...pageTable}
-                )};
-            default: return state;
+                return _extends({}, state, { PageTableList: state.PageTableList.map(function (pageTable, i) {
+                    return i == action.payload.PageTableIndex ? _extends({}, pageTable, { entries: [].concat(_toConsumableArray(pageTable.entries.slice(0, action.payload.PageTableEntry)), _toConsumableArray(pageTable.entries.slice(action.payload.PageTableEntry + 1))) }) : _extends({}, pageTable);
+                }) });
+            default:
+                return state;
         }
     };
-    const store = Redux.createStore(reducer);
-    ReduxMixin = PolymerRedux(store); // ReduxMixin has a GLOBAL scope
+    var store = Redux.createStore(reducer);
+    var ReduxMixin = PolymerRedux(store); // ReduxMixin has a GLOBAL scope
 </script>
