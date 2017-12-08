@@ -1,17 +1,27 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../redux-mixin.html">
-
+<script src="../../bower_components/jquery/dist/jquery.min.js"></script>
 <dom-module id="reference-buffer">
     <template>
         <style>
             :host {
                 display: block;
             }
+            paper-button.green {
+                background-color: var(--paper-green-500);
+                color: white;
+            }
+            paper-button{
+                margin: 8px;
+            }
         </style>
         <label for="fileUpload" id="label">Upload Access String</label>
         <paper-input id="fileUpload" type="file" name="fileUpload" on-change="fileChange"></paper-input>
+        <paper-button raised class="green" on-click="useDefaultData">Use Default</paper-button>
         <iron-list items="[[referenceList]]" as="row" id="ironList">
             <style>
                 div[selected]{
@@ -82,6 +92,11 @@
                         , line.substr(line.indexOf(':')+1).trim());
                     //Add new reference to store
                     this.dispatch({type: ADD_REFERENCE, payload:{row: reference}});
+                }.bind(this));
+            }
+            useDefaultData(){
+                $.get('/src/sample-data/input3a.data', function(result){
+                    this._parseFileText(result)
                 }.bind(this));
             }
             _calculateSelected(index, currentRef){
